@@ -1,0 +1,46 @@
+const express = require("express")
+const dotenv = require("dotenv").config()
+const authRoutes = require('./routes/authRoutes.js'); 
+const cookieParser = require('cookie-parser');
+const dbConnect = require("./config/dbConnect.js")
+const productRoutes = require('./routes/productRoutes');
+const orderRoutes = require('./routes/orderRoutes');
+const farmerRoutes = require("./routes/farmerRoutes.js");
+const adminRoutes = require('./routes/adminRoutes');
+const reviewRoutes = require("./routes/reviewRoutes.js")
+const cors = require("cors")
+const path = require('path');
+const cartRoutes = require('./routes/cartRoutes');
+
+const app = express();
+app.use(cookieParser());
+// Middleware to parse JSON
+app.use(express.json());
+app.use(cors({
+    origin: 'http://localhost:5173', // Accept requests from any origin
+    credentials: true // If you're using cookies with frontend, this should match frontend origin, not '*'
+  }));
+dbConnect();
+
+app.get("/",(req,res)=>{
+    res.send("Agro E-com api is running");
+})
+
+
+app.use('/auth', authRoutes);
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+app.use('/api', productRoutes);
+
+app.use('/api', orderRoutes);
+app.use('/api', farmerRoutes);
+app.use('/api/admin', adminRoutes); 
+app.use('/api/reviews', reviewRoutes);
+
+app.use('/api/cart', cartRoutes);
+
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT ,()=>{
+    console.log(`server connected on ${PORT}`)
+})
