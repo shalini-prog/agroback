@@ -11,6 +11,7 @@ const reviewRoutes = require("./routes/reviewRoutes.js")
 const cors = require("cors")
 const path = require('path');
 const cartRoutes = require('./routes/cartRoutes');
+const protect = require('./middleware/protect.js')
 
 const app = express();
 app.use(cookieParser());
