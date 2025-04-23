@@ -28,6 +28,9 @@ app.get("/",(req,res)=>{
     res.send("Agro E-com api is running");
 })
 
+app.get('/auth/me', protect, (req, res) => {
+  res.json({ user: req.user });
+});
 
 app.use('/auth', authRoutes);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
