@@ -17,8 +17,10 @@ app.use(cookieParser());
 // Middleware to parse JSON
 app.use(express.json());
 app.use(cors({
-    origin: 'http://localhost:5173', // Accept requests from any origin
-    credentials: true // If you're using cookies with frontend, this should match frontend origin, not '*'
+    origin: (origin, callback) => {
+      callback(null, true); // Allow all origins
+    },
+    credentials: true
   }));
 dbConnect();
 
