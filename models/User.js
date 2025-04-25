@@ -33,7 +33,39 @@ const userSchema = new mongoose.Schema({
     enum: ['user', 'farmer', 'admin'],
     required: true,
   },
-  
+
+  // Common/User fields
+  name: {
+    type: String
+  },
+  phone: {
+    type: String
+  },
+  dob: {
+    type: String // Keep as string if you're passing "DD-MM-YYYY" format
+  },
+
+  // Farmer-specific fields
+  zone: {
+    type: String
+  },
+  area: {
+    type: String
+  },
+
+  // Admin-specific fields
+  empType: {
+    type: String
+  },
+  empId: {
+    type: String
+  },
+  dept: {
+    type: String
+  },
+  address: {
+    type: String
+  },
 
   notifications: [notificationSchema],
 
@@ -51,10 +83,9 @@ const userSchema = new mongoose.Schema({
       }
     }
   ]
-  
-  
+
 }, {
-  timestamps: true,
+  timestamps: true
 });
 
 module.exports = mongoose.model('User', userSchema);

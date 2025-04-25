@@ -6,9 +6,7 @@ const User = require('../models/User');
 exports.getUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.userId).select('phone name dob');
-    if (!user) {
-      return res.status(404).json({ msg: 'User not found' });
-    }
+    if (!user) return res.status(404).json({ msg: 'User not found' });
     res.json(user);
   } catch (err) {
     console.error("Get User Profile Error:", err);
@@ -19,7 +17,6 @@ exports.getUserProfile = async (req, res) => {
 // Update user profile
 exports.updateUserProfile = async (req, res) => {
   const { phone, name, dob } = req.body;
-
   if (!phone || !name || !dob) {
     return res.status(400).json({ msg: 'Phone, name, and DOB are required' });
   }
@@ -28,8 +25,11 @@ exports.updateUserProfile = async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(
       req.user.userId,
       { $set: { phone, name, dob } },
-      { new: true, select: 'phone name dob' }
+      { new: true, projection: { phone: 1, name: 1, dob: 1 } }
     );
+
+    if (!updatedUser) return res.status(404).json({ msg: 'User not found' });
+
     res.json({ msg: 'User profile updated successfully', user: updatedUser });
   } catch (err) {
     console.error("Update User Profile Error:", err);
@@ -53,10 +53,9 @@ exports.getFarmerProfile = async (req, res) => {
   }
 };
 
-// Update farmer profile
+
 exports.updateFarmerProfile = async (req, res) => {
   const { name, zone, area } = req.body;
-
   if (!name || !zone || !area) {
     return res.status(400).json({ msg: 'Name, zone, and area are required' });
   }
@@ -65,8 +64,11 @@ exports.updateFarmerProfile = async (req, res) => {
     const updatedFarmer = await User.findByIdAndUpdate(
       req.user.userId,
       { $set: { name, zone, area } },
-      { new: true, select: 'name zone area' }
+      { new: true, projection: { name: 1, zone: 1, area: 1 } }
     );
+
+    if (!updatedFarmer) return res.status(404).json({ msg: 'Farmer not found' });
+
     res.json({ msg: 'Farmer profile updated successfully', farmer: updatedFarmer });
   } catch (err) {
     console.error("Update Farmer Profile Error:", err);
@@ -76,13 +78,10 @@ exports.updateFarmerProfile = async (req, res) => {
 
 // -------- ADMIN PROFILE --------
 
-// Get admin profile
 exports.getAdminProfile = async (req, res) => {
   try {
     const admin = await User.findById(req.user.userId).select('empType empId dept phone address');
-    if (!admin) {
-      return res.status(404).json({ msg: 'Admin not found' });
-    }
+    if (!admin) return res.status(404).json({ msg: 'Admin not found' });
     res.json(admin);
   } catch (err) {
     console.error("Get Admin Profile Error:", err);
@@ -90,10 +89,8 @@ exports.getAdminProfile = async (req, res) => {
   }
 };
 
-// Update admin profile
 exports.updateAdminProfile = async (req, res) => {
   const { empType, empId, dept, phone, address } = req.body;
-
   if (!empType || !empId || !dept || !phone || !address) {
     return res.status(400).json({ msg: 'All fields are required for admin' });
   }
@@ -102,8 +99,11 @@ exports.updateAdminProfile = async (req, res) => {
     const updatedAdmin = await User.findByIdAndUpdate(
       req.user.userId,
       { $set: { empType, empId, dept, phone, address } },
-      { new: true, select: 'empType empId dept phone address' }
+      { new: true, projection: { empType: 1, empId: 1, dept: 1, phone: 1, address: 1 } }
     );
+
+    if (!updatedAdmin) return res.status(404).json({ msg: 'Admin not found' });
+
     res.json({ msg: 'Admin profile updated successfully', admin: updatedAdmin });
   } catch (err) {
     console.error("Update Admin Profile Error:", err);
