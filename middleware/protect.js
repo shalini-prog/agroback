@@ -1,29 +1,29 @@
 const jwt = require("jsonwebtoken");
 
+const protect = (req, res, next) => {
+  const token = req.cookies["jwt-page"];
 
-const protect = (req,res,next) =>{
-    
-    const token = req.cookies["jwt-page"];
-    
-    if (!token) {
-        return res.status(401).json({message: "Unauthorized - No Token Provided" });
+  if (!token) {
+    return res.status(401).json({ message: "Unauthorized - No Token Provided" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    if (!decoded) {
+      return res.status(401).json({ message: "Unauthorized - Invalid Token" });
     }
 
-    try{
-        const decode = jwt.verify(token,process.env.JWT_SECRET);
+    req.user = { userId: decoded.id, role: decoded.role };
 
-        if (!decode) {
-			return res.status(401).json({ success: false, message: "Unauthorized - Invalid Token" });
-		}
+    console.log("✅ The decoded user is:", req.user);
+    console.log("🍪 Incoming cookies:", req.cookies);
 
-        req.user = { userId: decode.id, role: decode.role };
-        console.log("The decoded user is:",req.user);
-        console.log("Incoming cookies:", req.cookies);
+    next();
+  } catch (err) {
+    console.error("❌ Token verification failed:", err.message);
+    res.status(401).json({ message: "Unauthorized - Token Verification Failed" });
+  }
+};
 
-        next()
-    }catch(err){
-        res.status(400).json({message:"Token is not valid"});
-    }
-}
-
-module.exports = protect
+module.exports = protect;

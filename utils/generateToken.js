@@ -10,7 +10,7 @@ const generateTokenAndSetCookie = (user,res) => {
 
     res.cookie("jwt-page", token, {
         httpOnly: true,
-        sameSite: "none",
+        sameSite: "None",
         secure: true,
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });

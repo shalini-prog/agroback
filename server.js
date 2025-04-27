@@ -18,20 +18,24 @@ app.use(cookieParser());
 // Middleware to parse JSON
 app.use(express.json());
 app.use(cors({
-    origin: (origin, callback) => {
-      callback(null, true); // Allow all origins
-    },
-    credentials: true
-  }));
+  origin: 'http://localhost:5173',  // Your frontend URL
+  credentials: true,  // IMPORTANT: allow cookies
+}));
 dbConnect();
 
 app.get("/",(req,res)=>{
     res.send("Agro E-com api is running");
 })
 
-app.get('/auth/me', protect, (req, res) => {
-  res.json({ user: req.user });
+app.get('/auth/me', (req, res) => {
+  if (req.user) {
+    res.json(req.user);
+  } else {
+    res.status(401).json({ message: 'Unauthorized' });
+    console.log("error")
+  }
 });
+
 
 app.use('/auth', authRoutes);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
