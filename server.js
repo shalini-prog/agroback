@@ -17,10 +17,15 @@ const app = express();
 app.use(cookieParser());
 // Middleware to parse JSON
 app.use(express.json());
+
 app.use(cors({
-  origin: '*',  // Your frontend URL
-  credentials: true,  // IMPORTANT: allow cookies
+  origin: (origin, callback) => {
+    callback(null, origin); // allow all origins dynamically
+  },
+  credentials: true,
 }));
+
+
 dbConnect();
 
 app.get("/",(req,res)=>{
