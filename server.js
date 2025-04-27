@@ -18,7 +18,7 @@ app.use(cookieParser());
 // Middleware to parse JSON
 app.use(express.json());
 app.use(cors({
-  origin: 'http://localhost:5173',  // Your frontend URL
+  origin: '*',  // Your frontend URL
   credentials: true,  // IMPORTANT: allow cookies
 }));
 dbConnect();
