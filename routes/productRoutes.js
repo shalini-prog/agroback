@@ -44,3 +44,12 @@ router.put(
     deleteProduct
   );
   
+  const { getMyProducts } = require('../controllers/productController');
+
+// Fetch all products of the logged-in farmer
+router.get(
+  '/farmer/my-products',
+  protect,
+  roleProtect('farmer'),
+  getMyProducts
+);

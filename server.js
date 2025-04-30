@@ -11,7 +11,8 @@ const reviewRoutes = require("./routes/reviewRoutes.js")
 const cors = require("cors")
 const path = require('path');
 const cartRoutes = require('./routes/cartRoutes');
-const protect = require('./middleware/protect.js')
+const protect = require('./middleware/protect.js');
+
 
 const app = express();
 app.use(cookieParser());
@@ -32,14 +33,12 @@ app.get("/",(req,res)=>{
     res.send("Agro E-com api is running");
 })
 
-app.get('/auth/me', (req, res) => {
-  if (req.user) {
-    res.json(req.user);
-  } else {
-    res.status(401).json({ message: 'Unauthorized' });
-    console.log("error")
-  }
+app.get('/auth/me',protect, (req, res) => {
+  
+    res.json({ user: req.user });
+   
 });
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 app.use('/auth', authRoutes);

@@ -1,35 +1,52 @@
 const User = require('../models/User');
 const Product = require('../models/Product');
 
-exports.addProduct = async (req, res) => {
-    try {
+const path = require('path');
 
+exports.addProduct = async (req, res) => {
+  try {
     const farmer = await User.findById(req.user.userId);
 
     // Check if profile is complete
     if (!farmer.name || !farmer.zone || !farmer.area) {
       return res.status(400).json({ msg: 'Complete your profile before adding products' });
     }
-      const { title, type, description, price, quantity } = req.body;
-      
-  
-      const product = new Product({
-        farmer: req.user.userId,
-        title,
-        type,
-        description,
-        price,
-        quantity,
-        image: req.file ? req.file.filename : null
-      });
-  
-      await product.save();
-      res.status(201).json({ message: 'Product added successfully', product });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: 'Server error while adding product' });
-    }
-  };
+
+    const { title, type, description, price, quantity } = req.body;
+
+    const imageFilename = req.file ? req.file.filename : null;
+
+    const product = new Product({
+      farmer: req.user.userId,
+      title,
+      type,
+      description,
+      price,
+      quantity,
+      image: imageFilename,
+    });
+
+    await product.save();
+
+    // Construct full image URL (e.g. http://localhost:5000/uploads/filename.jpg)
+    const imageUrl = imageFilename
+      ? `${process.env.BASE_URL || 'http://localhost:5000'}/uploads/${imageFilename}`
+      : null;
+
+    // Return the new product with imageUrl
+    res.status(201).json({
+      message: 'Product added successfully',
+      product: {
+        ...product._doc,
+        imageUrl,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error while adding product' });
+  }
+};
+
   
  
 
@@ -92,6 +109,24 @@ exports.deleteProduct = async (req, res) => {
     } catch (error) {
       console.error('Delete product error:', error);
       res.status(500).json({ message: 'Server error' });
+    }
+  };
+  
+  exports.getMyProducts = async (req, res) => {
+    try {
+      const products = await Product.find({ farmer: req.user.userId });
+  
+      const fullProducts = products.map((product) => ({
+        ...product._doc,
+        imageUrl: product.image
+          ? `${process.env.BASE_URL || 'http://localhost:5000'}/uploads/${product.image}`
+          : null,
+      }));
+  
+      res.json({ products: fullProducts });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Server error fetching products' });
     }
   };
   
