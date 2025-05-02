@@ -56,41 +56,49 @@ exports.addReview = async (req, res) => {
 
 // DELETE a review
 exports.deleteReview = async (req, res) => {
-    try {
-      const productId = req.params.productId;
-      const userId = req.user.userId; // Assuming protect middleware sets this
-  
-      const product = await Product.findById(productId);
-      if (!product) return res.status(404).json({ message: 'Product not found' });
-  
-      const existingReview = product.reviews.find(
-        (rev) => rev.customer.toString() === userId
-      );
-  
-      if (!existingReview) {
-        return res.status(404).json({ message: 'Review not found for this user' });
-      }
-  
-      // Remove review
-      product.reviews = product.reviews.filter(
-        (rev) => rev.customer.toString() !== userId
-      );
-  
-      // Recalculate rating and numReviews
-      product.numReviews = product.reviews.length;
-      product.rating =
-        product.reviews.reduce((acc, item) => item.rating + acc, 0) /
-        (product.reviews.length || 1);
-  
-      await product.save();
-  
-      res.status(200).json({ message: 'Review deleted successfully' });
-  
-    } catch (error) {
-      console.error('❌ Delete Review Error:', error.message);
-      res.status(500).json({ message: 'Server error' });
+  try {
+    const reviewId = req.params.reviewId;
+    const userId = req.user.userId;
+
+    console.log("Review ID:", reviewId);
+    console.log("User ID:", userId);
+
+    // Find the product containing this review
+    const product = await Product.findOne({ 'reviews._id': reviewId });
+    if (!product) {
+      return res.status(404).json({ message: 'Review not found in any product' });
     }
-  };
+
+    console.log("Product found:", product);
+
+    const review = product.reviews.find(
+      (rev) => rev._id.toString() === reviewId && rev.customer.toString() === userId
+    );
+
+    if (!review) {
+      return res.status(403).json({ message: 'You are not authorized to delete this review' });
+    }
+
+    // Remove the review
+    product.reviews = product.reviews.filter((rev) => rev._id.toString() !== reviewId);
+
+    // Recalculate rating and numReviews
+    product.numReviews = product.reviews.length;
+    product.rating =
+      product.reviews.reduce((acc, item) => acc + item.rating, 0) /
+      (product.reviews.length || 1);
+
+    await product.save();
+
+    res.status(200).json({ message: 'Review deleted successfully' });
+
+  } catch (error) {
+    console.error('❌ Delete Review Error:', error.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
   
   exports.getFarmerReviews = async (req, res) => {
     try {
@@ -153,3 +161,38 @@ exports.deleteReview = async (req, res) => {
       res.status(500).json({ message: 'Server error' });
     }
   };
+
+  exports.getMyReviews = async (req, res) => {
+    try {
+      const userId = req.user.userId;
+  
+      // Find all products where the user has left a review
+      const products = await Product.find({ 'reviews.customer': userId }).select('title reviews');
+  
+      const myReviews = [];
+  
+      products.forEach(product => {
+        product.reviews.forEach(review => {
+          if (review.customer.toString() === userId) {
+            myReviews.push({
+              _id: review._id,
+              rating: review.rating,
+              comment: review.comment,
+              createdAt: review.createdAt,
+              product: {
+                title: product.title,
+              },
+            });
+          }
+        });
+      });
+  
+      res.json({ reviews: myReviews });
+  
+    } catch (error) {
+      console.error("❌ Fetch My Reviews Error:", error.message);
+      res.status(500).json({ message: "Failed to fetch your reviews" });
+    }
+  };
+  
+  

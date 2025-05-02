@@ -9,7 +9,7 @@ console.log("Testing controller import:", getFarmerOrders);
 
 const { getCustomerOrders } = require('../controllers/orderController');
 const {cancelOrderByCustomer,
-  cancelOrderByFarmer,acceptOrder, completeOrder} = require('../controllers/orderController');
+  cancelOrderByFarmer,acceptOrder, completeOrder,viewProducts} = require('../controllers/orderController');
 
 // View orders for farmer's products
 
@@ -34,7 +34,12 @@ router.get(
   getCustomerOrders
 );
 
-
+router.get(
+  '/customer/view',
+  protect,
+  roleProtect('user'),
+  viewProducts
+);
 router.patch('/order/:orderId/cancel', protect, roleProtect('user'), cancelOrderByCustomer);
 
 // Cancel order by farmer

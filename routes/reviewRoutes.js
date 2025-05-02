@@ -3,13 +3,13 @@
 const express = require('express');
 const router = express.Router();
 const protect = require('../middleware/protect');
-const { addReview } = require('../controllers/reviewController');
+const { addReview, getMyReviews } = require('../controllers/reviewController');
 const roleProtect = require('../middleware/roleProtect');
 const { deleteReview } = require('../controllers/reviewController');
 const {
     getFarmerReviews,
     getAllReviewsByAdmin,
-    deleteReviewByAdmin
+    deleteReviewByAdmin,
   } = require('../controllers/reviewController');
 
   router.get('/farmer', protect,roleProtect('farmer'), getFarmerReviews);
@@ -20,6 +20,7 @@ router.get('/admin',protect,roleProtect('admin'), getAllReviewsByAdmin);
 // Admin: delete specific review from a product
 router.delete('/:productId/:reviewId', protect,roleProtect('admin'), deleteReviewByAdmin);
 router.post('/:productId', protect,roleProtect('user'), addReview);
-router.delete('/:productId/review', protect, deleteReview);
+router.delete('/:reviewId/review', protect, deleteReview);
+router.get('/my',protect,roleProtect('user'),getMyReviews)
 
 module.exports = router;

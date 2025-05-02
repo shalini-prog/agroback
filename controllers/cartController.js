@@ -45,12 +45,31 @@ exports.removeFromCart = async (req, res) => {
     const userId = req.user.userId;
   
     try {
-      const user = await User.findById(userId).populate('cart.product', 'title price image');
+      const user = await User.findById(userId).populate('cart.product');
   
-      res.status(200).json({ cart: user.cart });
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
+  
+      const fullCart = user.cart
+        .filter(item => item.product) // In case product is deleted
+        .map(item => ({
+          ...item.toObject(),
+          product: {
+            ...item.product._doc,
+            imageUrl: item.product.image
+              ? `${baseUrl}/uploads/${item.product.image}`
+              : null,
+          },
+        }));
+  
+      res.status(200).json({ cart: fullCart });
     } catch (error) {
       console.error('Get Cart Error:', error);
       res.status(500).json({ message: 'Server error' });
     }
   };
+  
   

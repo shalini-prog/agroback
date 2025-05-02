@@ -230,3 +230,26 @@ exports.completeOrder = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+exports.viewProducts = async (req, res) => {
+  try {
+    // Fetch all products from the database
+    const products = await Product.find();
+
+    // Map over products and dynamically add the imageUrl field
+    const fullProducts = products.map((product) => ({
+      ...product._doc,
+      imageUrl: product.image
+        ? `${process.env.BASE_URL || 'http://localhost:5000'}/uploads/${product.image}`
+        : null,
+    }));
+
+    // Return all products as a response
+    res.json({ products: fullProducts });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error fetching products' });
+  }
+};
+
+

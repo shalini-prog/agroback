@@ -15,6 +15,6 @@ router.post('/add', protect, roleProtect('user'), addToCart);
 router.delete('/remove/:productId', protect, roleProtect('user'), removeFromCart);
 
 // View cart
-router.get('/', protect, roleProtect('user'), getCart);
+router.get('/view', protect, roleProtect('user'), getCart);
 
 module.exports = router;
