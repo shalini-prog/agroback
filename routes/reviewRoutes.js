@@ -20,7 +20,7 @@ router.get('/admin',protect,roleProtect('admin'), getAllReviewsByAdmin);
 // Admin: delete specific review from a product
 router.delete('/:productId/:reviewId', protect,roleProtect('admin'), deleteReviewByAdmin);
 router.post('/:productId', protect,roleProtect('user'), addReview);
-router.delete('/:reviewId/review', protect, deleteReview);
+router.delete('/:reviewId', protect, deleteReview);
 router.get('/my',protect,roleProtect('user'),getMyReviews)
 
 module.exports = router;
